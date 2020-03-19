@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/http"
 	"time"
+
 	"github.com/gorilla/mux"
 
 	"github.com/greennit/api"
@@ -34,5 +35,5 @@ func main() {
 }
 
 func indexHandler(w http.ResponseWriter, r *http.Request) (interface{}, *error.AppError) {
-	return "index", nil
+	return map[string]string{"page": "index"}, nil
 }
