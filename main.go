@@ -10,6 +10,7 @@ import (
 	"github.com/greennit/api"
 	"github.com/greennit/error"
 	"github.com/greennit/util"
+	"github.com/greennit/database"
 )
 
 func main() {
@@ -17,7 +18,7 @@ func main() {
 	// Add service routes
 	api.AddUserRoutes(router.PathPrefix("/api/users").Subrouter())
 
-
+	database.InitDB()
 	// Index route
 	router.Handle("/", util.AppHandler(indexHandler)).Methods("GET")
 	// Configure server
