@@ -11,13 +11,15 @@ import (
 const (
 	// DBName - Name of the database.
 	DBName = "greennit"
+	// USER collection
+	UserColl = "users"
 	// URI - mongodb URI
 	URI = "mongodb://greennit:123456@localhost/greennit"
 )
 
 
 // InitDB - init database
-func InitDB() {
+func GetConnection() *mongo.Client {
 	// Base context.
 	ctx := context.Background()
 	// Options to the database.
@@ -25,8 +27,6 @@ func InitDB() {
 	client, err := mongo.Connect(ctx, clientOpts)
 	if err != nil {
 			fmt.Println(err)
-			return
 	}
-	db := client.Database(DBName)
-	fmt.Println(db.Name())
+	return client
 }

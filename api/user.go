@@ -1,56 +1,92 @@
 package api
 
 import (
+	"encoding/json"
+	"io/ioutil"
+	"log"
 	"net/http"
 
 	"github.com/gorilla/mux"
 
+	"github.com/greennit/database"
 	"github.com/greennit/error"
+	"github.com/greennit/service"
 	"github.com/greennit/util"
 )
 
+type UserAPI struct {
+	Service *service.UserService
+}
+
+type User struct {
+	Nickname   string    `json:"nickname"`
+	Pwd 			 string    `json:"secrect_pwd"`
+	Birth      string    `json:"birth"`
+	Email      string    `json:"email"`
+}
 // AddUserRoutes - Add routes of USER to sub router
 func AddUserRoutes(sub *mux.Router) {
-	sub.Handle("/login", util.AppHandler(login)).Methods("POST")
-	sub.Handle("/registration", util.AppHandler(registerUser)).Methods("POST")
-	sub.Handle("/profile-image", util.AppHandler(uploadUserProfileImage)).Methods("POST")
-	sub.Handle("/{id}", util.AppHandler(updateUserInfo)).Methods("PUT")
-	sub.Handle("/{id}/pass", util.AppHandler(changeUserPassword)).Methods("PUT")
-	sub.Handle("/{id}/notifications", util.AppHandler(getUserNotifications)).Methods("GET")
-	sub.Handle("/{id}/perks", util.AppHandler(getUserPerks)).Methods("GET")
+	var client = database.GetConnection()
+	var userRepo = database.UserRepo{Client: client}
+	var userService = service.UserService{Repository: &userRepo}
+	var API = UserAPI{&userService}
+	sub.Handle("/login", util.AppHandler(API.login)).Methods("POST")
+	sub.Handle("/registration", util.AppHandler(API.registerUser)).Methods("POST")
+	sub.Handle("/profile-image", util.AppHandler(API.uploadUserProfileImage)).Methods("POST")
+	sub.Handle("/{id}", util.AppHandler(API.updateUserInfo)).Methods("PUT")
+	sub.Handle("/{id}/pass", util.AppHandler(API.changeUserPassword)).Methods("PUT")
+	sub.Handle("/{id}/notifications", util.AppHandler(API.getUserNotifications)).Methods("GET")
+	sub.Handle("/{id}/perks", util.AppHandler(API.getUserPerks)).Methods("GET")
 }
 
-func login(w http.ResponseWriter, r *http.Request) (interface{}, *error.AppError) {
+func (api *UserAPI) login(w http.ResponseWriter, r *http.Request) (interface{}, *error.AppError) {
+	
+	return "", nil
+}
+
+func (api *UserAPI) registerUser(w http.ResponseWriter, r *http.Request) (interface{}, *error.AppError) {
+	// Extract data
+	body, err := ioutil.ReadAll(r.Body)
+	defer r.Body.Close()
+	if err != nil {
+		return nil, &error.AppError{Error: err, Message: err.Error(), Code: 500}
+	}
+	var user User
+	err = json.Unmarshal(body, &user)
+	if err != nil {
+		return nil, &error.AppError{Error: err, Message: err.Error(), Code: 500} 
+	}
+	// Register
+	newUser, e := api.Service.Register(user.Nickname, user.Pwd, user.Birth, user.Email)
+	if e != nil {
+		log.Printf("UserAPI - registerUser - Error when register User %s, %s", user.Email, err)
+		return nil, &error.AppError{Error: e, Message: "UserAPI - registerUser - Failed", Code: 500}
+	}
+
+	return newUser, nil
+}
+
+func (api *UserAPI) uploadUserProfileImage(w http.ResponseWriter, r *http.Request) (interface{}, *error.AppError) {
 
 	return "", nil
 }
 
-func registerUser(w http.ResponseWriter, r *http.Request) (interface{}, *error.AppError) {
+func (api *UserAPI) updateUserInfo(w http.ResponseWriter, r *http.Request) (interface{}, *error.AppError) {
 
 	return "", nil
 }
 
-func uploadUserProfileImage(w http.ResponseWriter, r *http.Request) (interface{}, *error.AppError) {
+func (api *UserAPI) changeUserPassword(w http.ResponseWriter, r *http.Request) (interface{}, *error.AppError) {
 
 	return "", nil
 }
 
-func updateUserInfo(w http.ResponseWriter, r *http.Request) (interface{}, *error.AppError) {
+func (api *UserAPI) getUserNotifications(w http.ResponseWriter, r *http.Request) (interface{}, *error.AppError) {
 
 	return "", nil
 }
 
-func changeUserPassword(w http.ResponseWriter, r *http.Request) (interface{}, *error.AppError) {
-
-	return "", nil
-}
-
-func getUserNotifications(w http.ResponseWriter, r *http.Request) (interface{}, *error.AppError) {
-
-	return "", nil
-}
-
-func getUserPerks(w http.ResponseWriter, r *http.Request) (interface{}, *error.AppError) {
+func (api *UserAPI) getUserPerks(w http.ResponseWriter, r *http.Request) (interface{}, *error.AppError) {
 
 	return "", nil
 }
