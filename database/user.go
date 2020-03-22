@@ -24,7 +24,7 @@ type UserEntity struct {
 }
 
 func (u UserEntity) String() string {
-	return fmt.Sprintf("User{%s}", u.Email)
+	return fmt.Sprintf("User <%s>", u.Email)
 }
 
 type UserRepo struct {
@@ -35,25 +35,34 @@ func (repo *UserRepo) Save(ctx context.Context,  entity *UserEntity) (*UserEntit
 	coll := repo.Client.Database(DBName).Collection(UserColl)
 	_, err := coll.InsertOne(ctx, entity)
 	if err != nil {
-		log.Printf("UserRepo - Save - Error when create account %s, %s", entity, err)
+		log.Printf("UserRepo;Save;Error when create account %s, %s", entity, err)
 		return nil, err
 	}
 	entity.SecrectPwd = ""
 	return entity, nil
 }
 
+/* Get user by email address, 
+	If got ErrNoDocuments return nil, nil
+	If get other Error return nill, Error
+	If got User return *UserEntity, nil.
+*/
 func (repo *UserRepo) GetUserByEmail(ctx context.Context, email string) (*UserEntity, error) {
 	coll := repo.Client.Database(DBName).Collection(UserColl)
 	result := coll.FindOne(ctx, bson.M{"email": email})
 	if err := result.Err(); err != nil {
-		log.Printf("UserRepo - getUSerByEmail - Error when find account %s, %s", email, err)
+		if err == mongo.ErrNoDocuments {
+			return nil, nil
+		}
+		log.Printf("UserRepo;GetUserByEmail;Error when find user %s, %s", email, err)
 		return nil, err
 	}
 	user := UserEntity{}
 	err := result.Decode(&user)
 	if err != nil {
-		log.Printf("UserRepo - getUSerByEmail - Error when find account %s, %s", email, err)
+		log.Printf("UserRepo;GetUserByEmail;Error when extract user %s, %s", email, err)
 		return nil, err
 	}
+	user.SecrectPwd = ""
 	return &user, nil
 }

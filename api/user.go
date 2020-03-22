@@ -57,10 +57,10 @@ func (api *UserAPI) registerUser(w http.ResponseWriter, r *http.Request) (interf
 		return nil, &error.AppError{Error: err, Message: err.Error(), Code: 500} 
 	}
 	// Register
-	newUser, e := api.Service.Register(user.Nickname, user.Pwd, user.Birth, user.Email)
-	if e != nil {
-		log.Printf("UserAPI - registerUser - Error when register User %s, %s", user.Email, err)
-		return nil, &error.AppError{Error: e, Message: "UserAPI - registerUser - Failed", Code: 500}
+	newUser, registerError := api.Service.Register(user.Nickname, user.Pwd, user.Birth, user.Email)
+	if registerError != nil {
+		log.Printf("UserAPI;registerUser;Error when register User %s", user.Email)
+		return nil, &error.AppError{Error: registerError, Message: "UserAPI;registerUser;Failed", Code: 500}
 	}
 
 	return newUser, nil

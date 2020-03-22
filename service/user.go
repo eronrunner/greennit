@@ -2,11 +2,14 @@ package service
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"time"
 
-	"github.com/greennit/database"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+
+	"github.com/greennit/database"
+	appErr "github.com/greennit/error"
 )
 
 type UserService struct {
@@ -18,12 +21,12 @@ func (s *UserService) Register(nickname, pwd, birth, email string) (*database.Us
 	// Check exist
 	user, checkErr := s.Repository.GetUserByEmail(ctx, email)
 	if checkErr != nil {
-		log.Printf("UserService - Register - Error when check out %s, %s", email, checkErr)
+		log.Printf("UserService;Register;Error when check out %s", email)
 		return nil, checkErr
 	}
 	if user != nil {
-		log.Printf("UserService - Register - Account %s is exist", email)
-		return nil, checkErr
+		log.Printf("UserService;Register;Account %s is exist", email)
+		return nil, fmt.Errorf("User;%s", appErr.ErrObjectExist)
 	}
 	entity := database.UserEntity{}
 	entity.ID = primitive.NewObjectID()
@@ -34,7 +37,7 @@ func (s *UserService) Register(nickname, pwd, birth, email string) (*database.Us
 
 	user, saveErr := s.Repository.Save(ctx, &entity)
 	if saveErr != nil {
-		log.Printf("UserService - Register - Error when register %s, %s", email, saveErr)
+		log.Printf("UserService;Register;Error when register %s", email)
 		return nil, saveErr
 	}
 	return user, nil

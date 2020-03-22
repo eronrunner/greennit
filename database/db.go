@@ -14,7 +14,7 @@ const (
 	// USER collection
 	UserColl = "users"
 	// URI - mongodb URI
-	URI = "mongodb://greennit:123456@localhost/greennit"
+	URI = "mongodb://greennit:123456@192.168.116.128:27017/greennit"
 )
 
 

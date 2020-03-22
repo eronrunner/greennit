@@ -10,7 +10,6 @@ import (
 	"github.com/greennit/api"
 	"github.com/greennit/error"
 	"github.com/greennit/util"
-	"github.com/greennit/database"
 )
 
 func main() {
@@ -18,7 +17,6 @@ func main() {
 	// Add service routes
 	api.AddUserRoutes(router.PathPrefix("/api/users").Subrouter())
 
-	database.InitDB()
 	// Index route
 	router.Handle("/", util.AppHandler(indexHandler)).Methods("GET")
 	// Configure server
@@ -29,7 +27,7 @@ func main() {
 		IdleTimeout:  time.Second * 60,
 		Handler:      router,
 	}
-	log.Println("HTTP Server - localhost:8080 has already served  ")
+	log.Printf("%s - HTTP Server - %s has already served\n\n", "Greennit", srv.Addr)
 	if err := srv.ListenAndServe(); err != nil {
 		log.Fatalln(err)
 	}
