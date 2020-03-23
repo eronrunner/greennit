@@ -10,30 +10,30 @@ import (
 )
 
 
-type MiddlewareChain struct {
-	MiddlewareHandlers []*func (w http.ResponseWriter, r *http.Request) (http.ResponseWriter, *http.Request)
-	Context *context.Context
-	AppHanlder *AppHandler
-}
+// Middleware - Pre-handler or req/res
+type Middleware func(*context.Context, http.HandlerFunc) http.HandlerFunc
 
-func (chain *MiddlewareChain) Add(f ...*func (w http.ResponseWriter, r *http.Request) (http.ResponseWriter, *http.Request)) *MiddlewareChain {
-	for i := 0; i < len(chain.MiddlewareHandlers); i++ {
-		chain.MiddlewareHandlers = append(chain.MiddlewareHandlers, f[i])
-	}
-	return chain
-}
+// MultipleMiddleware - Implement check in addditional conditions before actually handle req/res
+func MultipleMiddleware(h http.HandlerFunc, m ...Middleware) http.HandlerFunc {
 
-func (chain *MiddlewareChain) Handle() *http.Handler {
-	for i := 0; i < len(chain.MiddlewareHandlers); i++ {
-		
+	if len(m) < 1 {
+		 return h
 	}
-	return nil
+
+	wrapped := h
+	ctx := context.TODO()
+	// loop in reverse to preserve middleware order
+	for i := len(m) - 1; i >= 0; i-- {
+		 wrapped = m[i](&ctx, wrapped)
+	}
+
+	return wrapped
+
 }
 
 // AppHandler - basic hanlder for any requests/response before return any
 type AppHandler func(w http.ResponseWriter, r *http.Request) (interface{}, *error.AppError)
 
-func (chain *MiddlewareChain) AppHandler()
 
 // ServeHTTP - handle http req/res
 func (handler AppHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
