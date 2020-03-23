@@ -18,7 +18,7 @@ func main() {
 	api.AddUserRoutes(router.PathPrefix("/api/users").Subrouter())
 
 	// Index route
-	router.Handle("/", util.AppHandler(indexHandler)).Methods("GET")
+	router.Handle("/", util.JsonHandler(indexHandler)).Methods("GET")
 	// Configure server
 	srv := &http.Server{
 		Addr: "0.0.0.0:8080",
