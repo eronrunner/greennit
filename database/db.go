@@ -11,14 +11,14 @@ import (
 const (
 	// DBName - Name of the database.
 	DBName = "greennit"
-	// USER collection
+	// UserColl - USER collection
 	UserColl = "users"
 	// URI - mongodb URI
 	URI = "mongodb://greennit:123456@192.168.116.128:27017/greennit"
 )
 
 
-// InitDB - init database
+// GetConnection - Get db connection
 func GetConnection() *mongo.Client {
 	// Base context.
 	ctx := context.Background()

@@ -14,13 +14,16 @@ import (
 	"github.com/greennit/util"
 )
 
+
+// UserAPI - Handle USER APIs
 type UserAPI struct {
 	Service *service.UserService
 }
 
+// User - Extract info from request
 type User struct {
 	Nickname   string    `json:"nickname"`
-	Pwd 			 string    `json:"secrect_pwd"`
+	Pwd 			 []byte    `json:"secrect_pwd"`
 	Birth      string    `json:"birth"`
 	Email      string    `json:"email"`
 }

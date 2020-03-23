@@ -15,7 +15,7 @@ import (
 type UserEntity struct {
 	ID         primitive.ObjectID `bson:"_id" json:"id,omitempty"`
 	Nickname   string             `json:"nickname" json:"nickname,omitempty"`
-	SecrectPwd string             `json:"secrect_pwd" json:"SecrectPwd,omitempty"`
+	SecrectPwd []byte             `json:"secrect_pwd" json:"SecrectPwd,omitempty"`
 	Birth      string             `json:"birth" json:"SecrectPwd,omitempty"`
 	Email      string             `json:"email" json:"email,omitempty"`
 	Picture    string             `json:"picture"`
@@ -27,10 +27,12 @@ func (u UserEntity) String() string {
 	return fmt.Sprintf("User <%s>", u.Email)
 }
 
+// UserRepo - Handle USER's CRUD
 type UserRepo struct {
 	Client *mongo.Client
 }
 
+// Save - Create an user
 func (repo *UserRepo) Save(ctx context.Context,  entity *UserEntity) (*UserEntity, error) {
 	coll := repo.Client.Database(DBName).Collection(UserColl)
 	_, err := coll.InsertOne(ctx, entity)
@@ -38,11 +40,11 @@ func (repo *UserRepo) Save(ctx context.Context,  entity *UserEntity) (*UserEntit
 		log.Printf("UserRepo;Save;Error when create account %s, %s", entity, err)
 		return nil, err
 	}
-	entity.SecrectPwd = ""
+	entity.SecrectPwd = nil
 	return entity, nil
 }
 
-/* Get user by email address, 
+/*GetUserByEmail - Get user by email address, 
 	If got ErrNoDocuments return nil, nil
 	If get other Error return nill, Error
 	If got User return *UserEntity, nil.
@@ -63,6 +65,6 @@ func (repo *UserRepo) GetUserByEmail(ctx context.Context, email string) (*UserEn
 		log.Printf("UserRepo;GetUserByEmail;Error when extract user %s, %s", email, err)
 		return nil, err
 	}
-	user.SecrectPwd = ""
+	user.SecrectPwd = nil
 	return &user, nil
 }
